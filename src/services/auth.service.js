@@ -5,6 +5,11 @@ import { router } from "../router";
 const API_URL = "http://localhost:3000/api/";
 
 class AuthService {
+
+  constructor() {
+    this.createAxiosResponseInterceptor();
+  }
+
   login(user) {
     return axios
       .post(API_URL + "login", {
@@ -59,7 +64,7 @@ class AuthService {
          * Eject the interceptor so it doesn't loop in case
          * token refresh causes the 401 response
          */
-        axios.interceptors.response.eject(interceptor);
+        //axios.interceptors.response.eject(interceptor);
 
         if (error.response.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
@@ -82,10 +87,10 @@ class AuthService {
               ] = `${response.data.accessToken}`;
               return axios(originalRequest);
             })
-            .finally(this.createAxiosResponseInterceptor);
+            //.finally(this.createAxiosResponseInterceptor);
         }
       }
-    );
+    )
   }
 }
 
