@@ -37,16 +37,23 @@ class AuthService {
       token: user.refresh,
     });
   }
-
   createAxiosResponseInterceptor() {
     const interceptor = axios.interceptors.response.use(
       (response) => response,
       (error) => {
+        const originalRequest = error.config;
         // Reject promise if usual error
         if (error.response.status !== 401) {
           return Promise.reject(error);
         }
 
+        if (
+          error.response.status === 401 &&
+          originalRequest.url === "http://localhost:8080/api/token"
+        ) {
+          store.dispatch("auth/logout");
+          return Promise.reject(error);
+        }
         /*
          * When response code is 401, try to refresh the token.
          * Eject the interceptor so it doesn't loop in case
@@ -54,25 +61,29 @@ class AuthService {
          */
         axios.interceptors.response.eject(interceptor);
 
-        return axios
-          .post(API_URL + "token", {
-            token: store.state.auth.user.refreshToken,
-          })
-          .then((response) => {
-            if (response.data.accessToken) {
-              store.state.auth.user.accessToken = response.data.accessToken;
-              localStorage.setItem(
-                "user",
-                JSON.stringify(store.state.auth.user)
-              );
-            }
-            return axios(error.response.config);
-          })
-          .catch((error) => {
-            store.dispatch("auth/logout");
-            return Promise.reject(error);
-          })
-          .finally(this.createAxiosResponseInterceptor);
+        if (error.response.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          const refreshToken = store.state.auth.user.refreshToken;
+
+          return axios
+            .post(API_URL + "token", {
+              token: refreshToken,
+            })
+            .then((response) => {
+              if (response.data.accessToken) {
+                store.state.auth.user.accessToken = response.data.accessToken;
+                localStorage.setItem(
+                  "user",
+                  JSON.stringify(store.state.auth.user)
+                );
+              }
+              originalRequest.headers[
+                "auth-token"
+              ] = `${response.data.accessToken}`;
+              return axios(originalRequest);
+            })
+            .finally(this.createAxiosResponseInterceptor);
+        }
       }
     );
   }

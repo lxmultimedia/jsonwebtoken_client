@@ -56,8 +56,6 @@
 </template>
 
 <script>
-import AuthService from "./services/auth.service";
-
 export default {
   computed: {
     currentUser() {
@@ -75,9 +73,6 @@ export default {
       }
       return false;
     },
-  },
-  mounted() {
-    AuthService.createAxiosResponseInterceptor();
   },
   methods: {
     logOut() {
