@@ -1,57 +1,57 @@
-import Vue from 'vue';
-import Router from 'vue-router';
-import Home from './views/Home.vue';
-import Login from './views/Login.vue';
-import Register from './views/Register.vue';
+import Vue from "vue";
+import Router from "vue-router";
+import Home from "./views/Home.vue";
+import Login from "./views/Login.vue";
+import Register from "./views/Register.vue";
+import store from "./store";
 
 Vue.use(Router);
 
 export const router = new Router({
-  mode: 'history',
+  mode: "history",
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: Home
+      path: "/",
+      name: "home",
+      component: Home,
     },
     {
-      path: '/home',
-      component: Home
+      path: "/home",
+      component: Home,
     },
     {
-      path: '/login',
-      name: 'login',
-      component: Login
+      path: "/login",
+      name: "login",
+      component: Login,
     },
     {
-      path: '/register',
-      component: Register
+      path: "/register",
+      component: Register,
     },
     {
-      path: '/profile',
-      name: 'profile',
+      path: "/profile",
+      name: "profile",
       // lazy-loaded
-      component: () => import('./views/Profile.vue')
+      component: () => import("./views/Profile.vue"),
     },
     {
-      path: '/protected',
-      name: 'protected',
+      path: "/protected",
+      name: "protected",
       // lazy-loaded
-      component: () => import('./views/Protected.vue')
-    }
-  ]
+      component: () => import("./views/Protected.vue"),
+    },
+  ],
 });
 
-
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login', '/register', '/home'];
+  const publicPages = ["/login", "/register", "/home"];
   const authRequired = !publicPages.includes(to.path);
-  const loggedIn = localStorage.getItem('user');
+  const loggedIn = localStorage.getItem("user");
 
   // trying to access a restricted page + not logged in
   // redirect to login page
   if (authRequired && !loggedIn) {
-    next('/login');
+    next("/login");
   } else {
     next();
   }

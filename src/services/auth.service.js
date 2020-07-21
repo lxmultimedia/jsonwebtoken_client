@@ -5,7 +5,6 @@ import { router } from "../router";
 const API_URL = "http://localhost:3000/api/";
 
 class AuthService {
-
   constructor() {
     this.createAxiosResponseInterceptor();
   }
@@ -86,11 +85,11 @@ class AuthService {
                 "auth-token"
               ] = `${response.data.accessToken}`;
               return axios(originalRequest);
-            })
-            //.finally(this.createAxiosResponseInterceptor);
+            });
+          //.finally(this.createAxiosResponseInterceptor);
         }
       }
-    )
+    );
   }
 }
 
